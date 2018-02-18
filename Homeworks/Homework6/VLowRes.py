@@ -24,7 +24,7 @@ def OrbitCOM(galaxy, start, end, n):
     delta = 0.1
     VolDec = 2
 
-    for i in range(int(end/n+1)):
+    for i in np.arange(start, end+n, n):
         # add a string of the filenumber to the value “000”
         ilbl = '000' + str(i)
         # remove all but the last 3 digits
@@ -49,9 +49,9 @@ def OrbitCOM(galaxy, start, end, n):
         Vz = float(Gal_COMV[2]/(u.km/u.s))
 
         # Store the values in the Orbit array
-        Orbit[i,] = np.array([time, X, Y, Z, Vx, Vy, Vz])
+        Orbit[int(i/n),] = np.array([time, X, Y, Z, Vx, Vy, Vz])
 
-        print("{} {}".format(galaxy, i*n))
+        print("{} {}".format(galaxy, i))
 
     np.savetxt(fileout, Orbit, header='t x y z vx vy vz', comments='# ',\
                fmt=['%.2f ', '%.2f ','%.2f ','%.2f ','%.2f ','%.2f ','%.2f '])
