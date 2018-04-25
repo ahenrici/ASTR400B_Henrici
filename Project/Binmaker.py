@@ -33,6 +33,11 @@ class binmaker:
         self.yD = COMD.y - float(COMP[1]/u.kpc)
         self.zD = COMD.z - float(COMP[2]/u.kpc)
         
+        # Convert COM to spherical
+        self.rS, self.thetaS, self.phiS = self.cart2sph(self.xD, self.yD, self.zD)
+        
+        self.r_max = np.amax(self.rS)
+        
     # Transform coordinates from cartesian to spherical
     def cart2sph(self, x, y, z):
         hxy = np.hypot(x, y)
@@ -41,49 +46,31 @@ class binmaker:
         theta = np.arctan2(y, x)
         return r, theta, phi
 
-       
+    # Transform coordinates from cartesian to cylindrical   
     def cart2cyl(self, x, y, z):
         rho = np.sqrt(x**2 + y**2)
         theta = np.arctan2(y,x)
         z = z
         return rho, theta, z
-
-    def rmax(self):
-        return np.amax(self.rS)
-        
+    
+    # Create the radial bins
     def Radial_Bins(self, N):
         # Number of bins
         N_radial = N
-
-        # Convert COM to spherical
-        self.rS, self.thetaS, self.phiS = self.cart2cyl(self.xD, self.yD, self.zD)
-        
-        r_max = self.rmax()
         
         # Create list of radii that will divide the bins
-        radii = np.linspace(0, r_max, N_radial+1)
-        radial_bins = []
+        radii = np.linspace(0, self.r_max, N_radial)
+        radial_bins = np.digitize(self.rS, radii)-1
+       
+        return radial_bins
 
-        
-        # Sort the particles into each bin
-        for r in range(N_radial):
-            radial_bins.append(np.where((self.rS <= radii[r+1]) & (self.rS > radii[r])))
-
-        return radial_bins, r_max
-
-
+    # Create the angular bins
     def Angular_Bins(self, N):
         # Number of bins + 1
-        N_angular = N + 1
+        N_angular = N+1
         # Create list of angles that will divide the bins
         angles = np.linspace(-pi, pi, N_angular)
-        angular_bins = []
 
-        # Convert COM to spherical
-        self.rS, self.thetaS, self.phiS = self.cart2cyl(self.xD, self.yD, self.zD)
+        angular_bins = np.digitize(self.thetaS, angles)-1
         
-        # Sort the particles into each bin
-        for a in range(N_angular-1):
-            angular_bins.append(np.where((self.thetaS <= angles[a+1]) & (self.thetaS > angles[a])))
-
-     
+        return angular_bins
