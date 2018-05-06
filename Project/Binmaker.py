@@ -17,24 +17,22 @@ from ReadFile import Read
 from CenterOfMass import CenterOfMass
 from MassProfile import MassProfile
 from RotateFrame import RotateFrame
+
 # Grab useful functions
 from numpy import pi, sqrt
 
 
 class binmaker:
     
-    def __init__(self, filename):
-        # Store the COM of the Milky Way to center on
-        COMD = CenterOfMass(filename,2)
-        COMP = COMD.COM_P(0.1, 4.0)
-
+    def __init__(self, data):
+        
         # Recenter to COM position
-        self.xD = COMD.x - float(COMP[0]/u.kpc)
-        self.yD = COMD.y - float(COMP[1]/u.kpc)
-        self.zD = COMD.z - float(COMP[2]/u.kpc)
+        self.x = data[:,0]
+        self.y = data[:,1]
+        self.z = data[:,2]
         
         # Convert COM to spherical
-        self.rS, self.thetaS, self.phiS = self.cart2sph(self.xD, self.yD, self.zD)
+        self.rS, self.thetaS, self.phiS = self.cart2sph(self.x, self.y, self.z)
         
         self.r_max = np.amax(self.rS)
         
@@ -46,13 +44,7 @@ class binmaker:
         theta = np.arctan2(y, x)
         return r, theta, phi
 
-    # Transform coordinates from cartesian to cylindrical   
-    def cart2cyl(self, x, y, z):
-        rho = np.sqrt(x**2 + y**2)
-        theta = np.arctan2(y,x)
-        z = z
-        return rho, theta, z
-    
+
     # Create the radial bins
     def Radial_Bins(self, N):
         # Number of bins
